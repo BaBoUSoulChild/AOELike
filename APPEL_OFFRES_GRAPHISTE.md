@@ -1,17 +1,17 @@
-# Appel d'offres — Graphiste Pixel Art Isométrique
-## Projet : AOELike — Jeu de stratégie en temps réel
+# Appel à contribution — Graphiste Pixel Art Isométrique
+## Projet : AOELike — Jeu de stratégie en temps réel open source
 
 ---
 
 ## 1. Présentation du projet
 
-**AOELike** est un jeu de stratégie en temps réel (RTS) inspiré d'Age of Empires II et StarCraft, développé sous Godot 4 et distribué via navigateur web (HTML5 / GitHub Pages).
+**AOELike** est un jeu de stratégie en temps réel (RTS) open source inspiré d'Age of Empires II et StarCraft, développé sous Godot 4 et distribué gratuitement via navigateur web (HTML5 / GitHub Pages).
 
-Le projet est porté par un développeur-chef de projet avec une vision à long terme : construire un jeu extensible à l'infini, dont les civilisations seront progressivement enrichies par une communauté de contributeurs (graphistes, développeurs, game designers).
+Le projet est communautaire par nature : chaque civilisation est un pack indépendant (assets + code + config) que n'importe quel contributeur peut créer et soumettre. L'objectif est de construire un jeu extensible à l'infini, enrichi progressivement par des graphistes, développeurs et game designers du monde entier.
 
 **Ambition :** Un RTS accessible, épique et modulaire — chaque civilisation est un univers visuel autonome, du médiéval humain à l'extraterrestre en passant par des peuples animaux ou fantastiques.
 
-**Public cible initial :** Joueurs fans d'AOE2 / RTS classiques.
+**Licence :** Open source — tes contributions seront publiées sous la même licence que le projet.
 
 **Plateforme :** Navigateur web (HTML5), potentiellement desktop ensuite.
 
@@ -53,10 +53,10 @@ Chaque civilisation possède son **propre langage visuel** (palette, matériaux,
 
 ## 3. Spécifications techniques
 
-### Outil de travail obligatoire
-**Aseprite** (version stable actuelle)
-- Fichiers source `.aseprite` avec calques organisés obligatoires
-- Export PNG en spritesheets organisées
+### Outil de travail
+**Aseprite** (version stable actuelle) — recommandé pour la cohérence du projet
+- Fichiers source `.aseprite` avec calques organisés
+- Export PNG en spritesheets
 
 ### Résolutions
 
@@ -80,40 +80,23 @@ Chaque unité doit être animée dans **8 directions** (standard isométrique) a
 
 > Le villageois (unité de récolte) inclut un état supplémentaire : **Gather** (récolte) — 8 frames.
 
-### Format de livraison
+### Structure de contribution
 ```
-/vikings
+/civilisation_nom
     /units
         /villager       → spritesheet PNG + source .aseprite
         /warrior        → spritesheet PNG + source .aseprite
-        /archer         → ...
         /...
     /buildings
         /town_center    → PNG + source .aseprite
-        /barracks       → ...
         /...
     /terrain
         /tiles          → spritesheet PNG + source .aseprite
-    palette_vikings.aseprite   → palette de couleurs officielle
-    README_vikings.md          → notes de direction artistique
-
-/japan
-    /units
-        /...
-    /buildings
-        /...
-    /terrain
-        /...
-    palette_japan.aseprite
-    README_japan.md
-
-/shared
-    /ui
-        /icons          → ressources, boutons
-        /...
+    palette.aseprite         → palette de couleurs officielle
+    README.md                → notes de direction artistique
 ```
 
-> Cette structure est le standard du projet : chaque future civilisation ajoutée par la communauté devra respecter exactement ce format.
+> Ce format est le standard du projet. Toutes les civilisations futures devront le respecter pour assurer la cohérence et la maintenabilité.
 
 ### Contraintes techniques Godot 4
 - Fond transparent (PNG avec canal alpha)
@@ -123,11 +106,11 @@ Chaque unité doit être animée dans **8 directions** (standard isométrique) a
 
 ---
 
-## 4. Livrables attendus — MVP
+## 4. Périmètre MVP — ce qu'on cherche à créer ensemble
 
 ### Terrain partagé
-- 20 tiles de terrain minimum : herbe, neige/glace (Vikings), terre, eau, sable, forêt (déclinaisons)
-- 5 tiles de ressources : arbre, mine d'or, rocher (pierre), baie alimentaire, poisson
+- 20 tiles de terrain minimum : herbe, neige/glace, terre, eau, sable, forêt
+- 5 tiles de ressources : arbre, mine d'or, rocher, baie alimentaire, poisson
 
 ### Civilisation Vikings
 **Unités :** Villageois, Guerrier (hache), Archer, Berserker (unité spéciale)
@@ -142,51 +125,43 @@ Chaque unité doit être animée dans **8 directions** (standard isométrique) a
 - Portraits des unités (64×64 px)
 - Icônes de bâtiments pour le menu de construction
 
+Tu peux contribuer sur l'ensemble ou sur une seule partie — chaque élément est utile.
+
 ---
 
-## 5. Profil recherché
+## 5. Profil idéal
 
-- Expérience confirmée en **pixel art isométrique** (portfolio obligatoire avec exemples isométriques)
-- Maîtrise d'**Aseprite**
+- Intérêt pour le **pixel art isométrique** (exemples dans ton portfolio bienvenus)
+- À l'aise avec **Aseprite** ou équivalent
 - Sensibilité aux jeux de stratégie (connaissance d'AOE2, StarCraft ou similaires est un plus)
-- Capacité à **définir et tenir une charte graphique** : le travail produit sur le MVP servira de référence pour tous les contributeurs futurs
-- Disponibilité pour des échanges réguliers de validation (1 à 2 points par semaine)
-- Autonomie et force de proposition sur la direction artistique dans le cadre défini
+- Envie de poser une **charte graphique durable** : le travail sur les deux premières civilisations servira de référence à tous les contributeurs futurs
+- Disponible pour des échanges ponctuels de validation
+
+Débutants motivés bienvenus — la qualité de l'intention compte autant que l'expérience.
 
 ---
 
-## 6. Budget & modalités
+## 6. Pourquoi contribuer
 
-**Budget cible MVP :** 5 000€ — 10 000€
-
-**Mode de travail :**
-- Paiement par jalons validés (terrain, civ 1, civ 2, UI)
-- Validation visuelle à chaque livrable avant passage au suivant
-- Contrat de cession de droits inclus (le graphiste conserve la mention de son travail dans les crédits)
-
-**Durée estimée :** 3 à 6 mois selon disponibilité
-
-**Premier jalon :** Concept art (non animé) d'un villageois Viking et d'un Samouraï pour valider la direction artistique avant de s'engager sur l'ensemble.
+- Ton nom et ton portfolio dans les **crédits du jeu**
+- Tes assets deviennent le **standard visuel** suivi par tous les contributeurs futurs
+- Un projet vivant, jouable dans le navigateur, avec des retours réguliers de vrais joueurs
+- Liberté créative dans un cadre clair — la direction artistique est posée, pas figée
+- Communauté accueillante, projet piloté avec méthode
 
 ---
 
-## 7. Pourquoi rejoindre ce projet
+## 7. Comment contribuer
 
-- Ton nom dans les crédits d'un jeu **distribué publiquement**
-- Travail de référence : tes assets deviennent le **standard visuel** suivi par tous les contributeurs futurs
-- Projet open-source et communautaire avec potentiel de croissance
-- Direction artistique claire et cadre de travail structuré
+1. Explore le repo : **github.com/babousoulchild/aoelike**
+2. Ouvre une **Issue** pour te présenter et indiquer sur quoi tu veux travailler
+3. On échange pour aligner les visions
+4. Tu soumets une première ébauche (ex : un villageois Viking) pour valider la direction
+5. Pull Request → review → merge
 
----
-
-## 8. Processus de sélection
-
-1. Envoi du portfolio + tarif journalier ou forfait estimé
-2. Échange de 30 minutes pour aligner les visions
-3. Livraison du premier jalon test (concept art 2 unités) — rémunéré
-4. Décision d'engagement sur le MVP complet
+Pas besoin de tout faire d'un coup. Une icône, un tile, une unité — chaque contribution compte.
 
 ---
 
-*Document version 1.0 — Juin 2026*
+*Document version 2.0 — Juin 2026*
 *Projet AOELike — github.com/babousoulchild/aoelike*

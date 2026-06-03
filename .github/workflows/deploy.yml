@@ -48,11 +48,11 @@ jobs:
           mkdir -p build/web
           godot --headless --export-release "Web" build/web/index.html
 
-      - name: Add SharedArrayBuffer support for GitHub Pages
+      - name: Add SharedArrayBuffer support and mobile viewport fix
         run: |
           wget -q https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.min.js \
             -O build/web/coi-serviceworker.js
-          sed -i 's|<head>|<head>\n    <script src="coi-serviceworker.js"></script>|' build/web/index.html
+          sed -i 's|<head>|<head>\n    <script src="coi-serviceworker.js"></script>\n    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">\n    <style>body { margin:0; overflow:hidden; background:#000; } canvas { display:block; width:100vw !important; height:100vh !important; }</style>|' build/web/index.html
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4

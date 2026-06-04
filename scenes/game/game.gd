@@ -39,12 +39,15 @@ var _last_tap_pos: Vector2 = Vector2.ZERO
 const DOUBLE_TAP_DELAY: float = 0.35
 const DOUBLE_TAP_DIST: float = 40.0
 
+# Détection drag vs tap sur mobile
+var _touch_moved: bool = false
+
 # -------------------------------------------------------------------------------
 func _ready() -> void:
 	_generate_tilemap()
 	_spawn_villager()
 	_setup_camera_limits()
-	_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD / drag : caméra"
+	_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
 	_back_button.pressed.connect(_on_back_pressed)
 
 func _on_back_pressed() -> void:
@@ -162,17 +165,19 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventScreenTouch:
 		var ste := event as InputEventScreenTouch
 		if ste.pressed:
+			_touch_moved = false
+		elif not ste.pressed and not _touch_moved:
+			# Tap confirmé (pas un drag caméra)
 			var world_pos := _screen_to_world(ste.position)
-			var now := Time.get_ticks_msec() / 1000.0
-			var is_double := (now - _last_tap_time) < DOUBLE_TAP_DELAY \
-				and ste.position.distance_to(_last_tap_pos) < DOUBLE_TAP_DIST
-			if is_double:
-				_handle_move(world_pos)
-				_last_tap_time = -1.0
+			if _selected_unit != null:
+				var hit := _villager.try_select(world_pos)
+				if not hit:
+					_handle_move(world_pos)
 			else:
 				_handle_select(world_pos)
-				_last_tap_time = now
-				_last_tap_pos = ste.position
+
+	elif event is InputEventScreenDrag:
+		_touch_moved = true
 
 func _handle_select(world_pos: Vector2) -> void:
 	if _villager == null:
@@ -181,7 +186,7 @@ func _handle_select(world_pos: Vector2) -> void:
 	if not hit and _selected_unit != null:
 		_selected_unit.set_selected(false)
 		_selected_unit = null
-		_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD / drag : caméra"
+		_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
 
 func _handle_move(world_pos: Vector2) -> void:
 	if _selected_unit != null:

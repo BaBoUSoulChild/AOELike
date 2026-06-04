@@ -48,29 +48,11 @@ jobs:
           mkdir -p build/web
           godot --headless --export-release "Web" build/web/index.html
 
-      - name: Add SharedArrayBuffer support and fullscreen fix
+      - name: Add SharedArrayBuffer support
         run: |
           wget -q https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.min.js \
             -O build/web/coi-serviceworker.js
-          sed -i 's|<head>|<head>\n    <script src="coi-serviceworker.js"></script>\n    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">|' build/web/index.html
-          sed -i 's|</body>|<script>(function(){\
-            function fill(){\
-              var w=window.innerWidth,h=window.innerHeight;\
-              ["canvas-wrapper","canvas"].forEach(function(id){\
-                var el=document.getElementById(id);\
-                if(el){\
-                  el.style.setProperty("width",w+"px","important");\
-                  el.style.setProperty("height",h+"px","important");\
-                  el.style.setProperty("position","fixed","important");\
-                  el.style.setProperty("top","0","important");\
-                  el.style.setProperty("left","0","important");\
-                }\
-              });\
-              window.dispatchEvent(new Event("resize"));\
-            }\
-            window.addEventListener("load",function(){fill();setTimeout(fill,500);setTimeout(fill,1500);});\
-            window.addEventListener("resize",fill);\
-          })();</script>\n</body>|' build/web/index.html
+          sed -i 's|<head>|<head>\n    <script src="coi-serviceworker.js"></script>|' build/web/index.html
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4

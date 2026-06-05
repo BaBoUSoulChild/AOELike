@@ -56,12 +56,12 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("""
 			(function(){
-				var c = document.getElementById('canvas');
+				var c = document.getElementById('canvas') || document.querySelector('canvas');
 				if (!c) return;
 				c.setAttribute('tabindex', '0');
 				c.focus();
 				document.addEventListener('click', function(){ c.focus(); });
-				document.addEventListener('touchend', function(){ c.focus(); });
+				document.addEventListener('keydown', function(e){ e.stopPropagation(); });
 			})();
 		""")
 
@@ -179,6 +179,15 @@ func _spawn_villager() -> void:
 func _on_villager_selected(_v: Villager) -> void:
 	_selected_unit = _villager
 	_update_label(true)
+
+func _process(_delta: float) -> void:
+	var z := Input.is_key_pressed(KEY_Z)
+	var q := Input.is_key_pressed(KEY_Q)
+	var s := Input.is_key_pressed(KEY_S)
+	var d := Input.is_key_pressed(KEY_D)
+	var any := z or q or s or d
+	if any:
+		_ui_label.text = "DEBUG TOUCHES — Z:%s  Q:%s  S:%s  D:%s" % [z, q, s, d]
 
 # -------------------------------------------------------------------------------
 # Inputs

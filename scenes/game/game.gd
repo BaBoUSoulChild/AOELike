@@ -180,14 +180,27 @@ func _on_villager_selected(_v: Villager) -> void:
 	_selected_unit = _villager
 	_update_label(true)
 
-func _process(_delta: float) -> void:
-	var z := Input.is_key_pressed(KEY_Z)
-	var q := Input.is_key_pressed(KEY_Q)
-	var s := Input.is_key_pressed(KEY_S)
-	var d := Input.is_key_pressed(KEY_D)
-	var any := z or q or s or d
-	if any:
-		_ui_label.text = "DEBUG TOUCHES — Z:%s  Q:%s  S:%s  D:%s" % [z, q, s, d]
+func _process(delta: float) -> void:
+	_move_camera_keyboard(delta)
+
+func _move_camera_keyboard(delta: float) -> void:
+	var dir := Vector2.ZERO
+	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
+		dir.x -= 1.0
+	if Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
+		dir.x += 1.0
+	if Input.is_key_pressed(KEY_Z) or Input.is_key_pressed(KEY_W) or Input.is_action_pressed("ui_up"):
+		dir.y -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
+		dir.y += 1.0
+	if dir == Vector2.ZERO:
+		return
+	var speed: float = 400.0 / _camera.zoom.x
+	_camera.position += dir.normalized() * speed * delta
+	_camera.position.x = clampf(_camera.position.x,
+		_camera.get("cam_limit_left"), _camera.get("cam_limit_right"))
+	_camera.position.y = clampf(_camera.position.y,
+		_camera.get("cam_limit_top"), _camera.get("cam_limit_bottom"))
 
 # -------------------------------------------------------------------------------
 # Inputs

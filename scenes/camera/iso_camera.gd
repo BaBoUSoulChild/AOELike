@@ -34,8 +34,8 @@ var cam_limit_bottom: float = INF
 func _ready() -> void:
 	zoom = Vector2(1.0, 1.0)
 
-func _process(delta: float) -> void:
-	_handle_keyboard(delta)
+func _process(_delta: float) -> void:
+	pass
 
 func _input(event: InputEvent) -> void:
 	# -- Souris ------------------------------------------------------------------

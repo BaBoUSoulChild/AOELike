@@ -47,7 +47,7 @@ func _ready() -> void:
 	_generate_tilemap()
 	_spawn_villager()
 	_setup_camera_limits()
-	_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
+	_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD/molette : caméra  |  Glisser (mobile)"
 	_back_button.pressed.connect(_on_back_pressed)
 
 func _on_back_pressed() -> void:
@@ -186,7 +186,7 @@ func _handle_select(world_pos: Vector2) -> void:
 	if not hit and _selected_unit != null:
 		_selected_unit.set_selected(false)
 		_selected_unit = null
-		_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
+		_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD/molette : caméra  |  Glisser (mobile)"
 
 func _handle_move(world_pos: Vector2) -> void:
 	if _selected_unit != null:

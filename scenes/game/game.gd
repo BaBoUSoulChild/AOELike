@@ -28,6 +28,7 @@ const TILE_H: int = 64
 @onready var _units_container: Node2D = $UnitsContainer
 @onready var _ui_label: Label = $UILayer/InfoLabel
 @onready var _back_button: Button = $UILayer/BackButton
+@onready var _fullscreen_button: Button = $UILayer/FullscreenButton
 
 # --- État -----------------------------------------------------------------------
 var _villager: Villager = null
@@ -47,11 +48,33 @@ func _ready() -> void:
 	_generate_tilemap()
 	_spawn_villager()
 	_setup_camera_limits()
-	_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD/molette : caméra  |  Glisser (mobile)"
+	_update_label(false)
 	_back_button.pressed.connect(_on_back_pressed)
+	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
+	# Donne le focus au canvas pour que ZQSD fonctionne sur PC/Chrome
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("document.getElementById('canvas').focus()")
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+
+func _on_fullscreen_pressed() -> void:
+	var mode := DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		_fullscreen_button.text = "⛶ Plein écran"
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		_fullscreen_button.text = "✕ Fenêtré"
+
+# -------------------------------------------------------------------------------
+# Label contextuel
+# -------------------------------------------------------------------------------
+func _update_label(has_selection: bool) -> void:
+	if has_selection:
+		_ui_label.text = "Clic gauche : désélectionner  |  Clic droit : déplacer  |  ZQSD/molette : caméra"
+	else:
+		_ui_label.text = "Clic gauche : sélectionner  |  ZQSD/molette : caméra  |  Glisser (mobile)"
 
 # -------------------------------------------------------------------------------
 # Génération de la carte
@@ -145,7 +168,7 @@ func _spawn_villager() -> void:
 
 func _on_villager_selected(_v: Villager) -> void:
 	_selected_unit = _villager
-	_ui_label.text = "Villageois sélectionné — Clic D pour déplacer"
+	_update_label(true)
 
 # -------------------------------------------------------------------------------
 # Inputs
@@ -186,7 +209,7 @@ func _handle_select(world_pos: Vector2) -> void:
 	if not hit and _selected_unit != null:
 		_selected_unit.set_selected(false)
 		_selected_unit = null
-		_ui_label.text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD/molette : caméra  |  Glisser (mobile)"
+		_update_label(false)
 
 func _handle_move(world_pos: Vector2) -> void:
 	if _selected_unit != null:

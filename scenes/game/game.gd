@@ -51,9 +51,19 @@ func _ready() -> void:
 	_update_label(false)
 	_back_button.pressed.connect(_on_back_pressed)
 	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
-	# Donne le focus au canvas pour que ZQSD fonctionne sur PC/Chrome
+	# Garde le focus sur le canvas pour que ZQSD fonctionne sur PC/Chrome.
+	# Le listener re-focalise après chaque clic (sinon le focus part dans le vide).
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("document.getElementById('canvas').focus()")
+		JavaScriptBridge.eval("""
+			(function(){
+				var c = document.getElementById('canvas');
+				if (!c) return;
+				c.setAttribute('tabindex', '0');
+				c.focus();
+				document.addEventListener('click', function(){ c.focus(); });
+				document.addEventListener('touchend', function(){ c.focus(); });
+			})();
+		""")
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")

@@ -95,7 +95,7 @@ func _handle_touch(event: InputEventScreenTouch) -> void:
 
 	if _touch_points.size() == 1:
 		_is_dragging = true
-		var pos := _touch_points.values()[0]
+		var pos: Vector2 = _touch_points.values()[0]
 		_drag_start_screen = pos
 		_drag_start_camera = position
 	elif _touch_points.size() == 2:

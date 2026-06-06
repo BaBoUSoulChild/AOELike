@@ -209,7 +209,7 @@ func _move_camera_keyboard(delta: float) -> void:
 # -------------------------------------------------------------------------------
 func _input(event: InputEvent) -> void:
 	# --- Souris ------------------------------------------------------------------
-	if event is InputEventMouseButton:
+	if event is InputEventMouseButton and (event as InputEventMouseButton).device != -1:
 		var mbe := event as InputEventMouseButton
 		if mbe.pressed:
 			var world_pos := _screen_to_world(mbe.position)

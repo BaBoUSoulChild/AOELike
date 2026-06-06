@@ -42,6 +42,8 @@ const DOUBLE_TAP_DIST: float = 40.0
 
 # Détection drag vs tap sur mobile
 var _touch_moved: bool = false
+var _touch_start_pos: Vector2 = Vector2.ZERO
+const TOUCH_DRAG_THRESHOLD: float = 20.0
 
 # -------------------------------------------------------------------------------
 func _ready() -> void:
@@ -221,6 +223,7 @@ func _input(event: InputEvent) -> void:
 		var ste := event as InputEventScreenTouch
 		if ste.pressed:
 			_touch_moved = false
+			_touch_start_pos = ste.position
 		elif not ste.pressed and not _touch_moved:
 			# Tap confirmé (pas un drag caméra)
 			var world_pos := _screen_to_world(ste.position)
@@ -232,7 +235,8 @@ func _input(event: InputEvent) -> void:
 				_handle_select(world_pos)
 
 	elif event is InputEventScreenDrag:
-		_touch_moved = true
+		if (event as InputEventScreenDrag).position.distance_to(_touch_start_pos) > TOUCH_DRAG_THRESHOLD:
+			_touch_moved = true
 
 func _handle_select(world_pos: Vector2) -> void:
 	if _villager == null:

@@ -28,6 +28,7 @@ const TILE_H: int = 64
 @onready var _units_container: Node2D = $UnitsContainer
 @onready var _ui_label: Label = $UILayer/InfoLabel
 @onready var _back_button: Button = $UILayer/BackButton
+@onready var _fullscreen_button: Button = $UILayer/FullscreenButton
 
 # --- État -----------------------------------------------------------------------
 var _villager: Villager = null
@@ -47,11 +48,43 @@ func _ready() -> void:
 	_generate_tilemap()
 	_spawn_villager()
 	_setup_camera_limits()
-	_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
+	_update_label(false)
 	_back_button.pressed.connect(_on_back_pressed)
+	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
+	# Garde le focus sur le canvas pour que ZQSD fonctionne sur PC/Chrome.
+	# Le listener re-focalise après chaque clic (sinon le focus part dans le vide).
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("""
+			(function(){
+				var c = document.getElementById('canvas') || document.querySelector('canvas');
+				if (!c) return;
+				c.setAttribute('tabindex', '0');
+				c.focus();
+				document.addEventListener('click', function(){ c.focus(); });
+				document.addEventListener('keydown', function(e){ e.stopPropagation(); });
+			})();
+		""")
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+
+func _on_fullscreen_pressed() -> void:
+	var mode := DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		_fullscreen_button.text = "⛶ Plein écran"
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		_fullscreen_button.text = "✕ Fenêtré"
+
+# -------------------------------------------------------------------------------
+# Label contextuel
+# -------------------------------------------------------------------------------
+func _update_label(has_selection: bool) -> void:
+	if has_selection:
+		_ui_label.text = "Clic gauche : désélectionner  |  Clic droit : déplacer  |  ZQSD/molette : caméra"
+	else:
+		_ui_label.text = "Clic gauche : sélectionner  |  ZQSD/molette : caméra  |  Glisser (mobile)"
 
 # -------------------------------------------------------------------------------
 # Génération de la carte
@@ -145,7 +178,29 @@ func _spawn_villager() -> void:
 
 func _on_villager_selected(_v: Villager) -> void:
 	_selected_unit = _villager
-	_ui_label.text = "Villageois sélectionné — Clic D pour déplacer"
+	_update_label(true)
+
+func _process(delta: float) -> void:
+	_move_camera_keyboard(delta)
+
+func _move_camera_keyboard(delta: float) -> void:
+	var dir := Vector2.ZERO
+	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
+		dir.x -= 1.0
+	if Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
+		dir.x += 1.0
+	if Input.is_key_pressed(KEY_Z) or Input.is_key_pressed(KEY_W) or Input.is_action_pressed("ui_up"):
+		dir.y -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
+		dir.y += 1.0
+	if dir == Vector2.ZERO:
+		return
+	var speed: float = 400.0 / _camera.zoom.x
+	_camera.position += dir.normalized() * speed * delta
+	_camera.position.x = clampf(_camera.position.x,
+		_camera.get("cam_limit_left"), _camera.get("cam_limit_right"))
+	_camera.position.y = clampf(_camera.position.y,
+		_camera.get("cam_limit_top"), _camera.get("cam_limit_bottom"))
 
 # -------------------------------------------------------------------------------
 # Inputs
@@ -186,7 +241,7 @@ func _handle_select(world_pos: Vector2) -> void:
 	if not hit and _selected_unit != null:
 		_selected_unit.set_selected(false)
 		_selected_unit = null
-		_ui_label.text = "Tap : sélectionner  |  Tap destination : déplacer  |  Glisser : caméra"
+		_update_label(false)
 
 func _handle_move(world_pos: Vector2) -> void:
 	if _selected_unit != null:

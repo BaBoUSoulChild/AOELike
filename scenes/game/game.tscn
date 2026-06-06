@@ -28,7 +28,7 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = 952.0
 offset_bottom = 40.0
-text = "Clic G : sélectionner  |  Clic D : déplacer  |  ZQSD / drag : caméra"
+text = ""
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 16
 
@@ -39,3 +39,14 @@ offset_top = 500.0
 offset_right = 120.0
 offset_bottom = 532.0
 text = "Menu"
+
+[node name="FullscreenButton" type="Button" parent="UILayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -110.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 40.0
+text = "⛶ Plein écran"
+theme_override_font_sizes/font_size = 14

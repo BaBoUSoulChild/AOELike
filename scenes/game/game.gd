@@ -229,9 +229,13 @@ func _input(event: InputEvent) -> void:
 			if _touch_moved:
 				_ui_label.text = "TAP BLOQUÉ (drag détecté)"
 			elif _selected_unit != null:
-				var hit := _villager.try_select(world_pos)
-				_ui_label.text = "TAP — sélectionné=%s hit=%s" % [true, hit]
-				if not hit:
+				var local := world_pos - _villager.position
+				var on_villager := (absf(local.x) / 22.0 + absf(local.y) / 11.0) <= 1.0
+				if on_villager:
+					_selected_unit.set_selected(false)
+					_selected_unit = null
+					_update_label(false)
+				else:
 					_handle_move(world_pos)
 			else:
 				_handle_select(world_pos)
@@ -252,11 +256,10 @@ func _handle_select(world_pos: Vector2) -> void:
 func _handle_move(world_pos: Vector2) -> void:
 	if _selected_unit != null:
 		var tile := IsoUtils.round_tile(IsoUtils.screen_to_tile(world_pos))
-		var ok := IsoUtils.in_bounds(tile, Vector2i(MAP_W, MAP_H))
-		_ui_label.text = "MOVE tile(%d,%d) valide=%s" % [tile.x, tile.y, ok]
-		if ok:
+		if IsoUtils.in_bounds(tile, Vector2i(MAP_W, MAP_H)):
 			var dest := _tile_to_screen(tile.x, tile.y)
 			_selected_unit.move_to(dest)
+			_ui_label.text = "Déplacement vers (%d, %d)" % [tile.x, tile.y]
 
 # -------------------------------------------------------------------------------
 # Conversions de coordonnées

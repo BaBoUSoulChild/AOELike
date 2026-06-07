@@ -50,3 +50,14 @@ offset_right = -8.0
 offset_bottom = 40.0
 text = "⛶ Plein écran"
 theme_override_font_sizes/font_size = 14
+
+[node name="ResourceLabel" type="Label" parent="UILayer"]
+anchors_preset = 0
+offset_left = 8.0
+offset_top = 48.0
+offset_right = 400.0
+offset_bottom = 80.0
+text = "Bois: 0   Or: 0"
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.95, 0.55, 1)

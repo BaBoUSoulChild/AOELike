@@ -129,10 +129,14 @@ func _spawn_villager() -> void:
 	_units_container.add_child(_villager)
 	_villager.selected.connect(_on_villager_selected)
 	_villager.collected.connect(_on_villager_collected)
+	_villager.collecting_started.connect(_on_villager_collecting_started)
 
 func _on_villager_selected(_v: Villager) -> void:
 	_selected_unit = _villager
 	_update_info_label(true)
+
+func _on_villager_collecting_started() -> void:
+	_ui_label.text = "Collecte en cours..."
 
 func _on_villager_collected(resource_type: int, amount: int) -> void:
 	if resource_type == ResourceNode.Type.WOOD:
@@ -267,7 +271,6 @@ func _handle_right_action(world_pos: Vector2) -> void:
 	var res: ResourceNode = _find_resource_at(world_pos)
 	if res != null:
 		_selected_unit.go_collect(res, _town_center.get_deposit_position())
-		_ui_label.text = "Collecte en cours..."
 	else:
 		_handle_move(world_pos)
 

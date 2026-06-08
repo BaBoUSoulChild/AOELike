@@ -4,6 +4,7 @@ class_name Villager
 
 signal selected(villager: Villager)
 signal collected(resource_type: int, amount: int)
+signal collecting_started
 
 enum State { FREE, GOING_TO_RES, COLLECTING, GOING_TO_DEPOT }
 
@@ -70,6 +71,7 @@ func _process(delta: float) -> void:
 			if _move_towards(_target_resource.position, delta):
 				_collect_timer = 0.0
 				_state = State.COLLECTING
+				emit_signal("collecting_started")
 		State.COLLECTING:
 			if not is_instance_valid(_target_resource):
 				_state = State.GOING_TO_DEPOT

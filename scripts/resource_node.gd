@@ -8,11 +8,13 @@ signal depleted(node: ResourceNode)
 
 var resource_type: Type = Type.WOOD
 var quantity: int = 50
+var _is_depleted: bool = false
 
 const HALF_W: float = 24.0
 const HALF_H: float = 12.0
 const COLOR_WOOD: Color = Color(0.55, 0.33, 0.10, 1.0)
 const COLOR_GOLD: Color = Color(0.95, 0.78, 0.10, 1.0)
+const COLOR_EMPTY: Color = Color(0.78, 0.78, 0.78, 0.55)
 
 var _poly: Polygon2D = null
 
@@ -42,19 +44,24 @@ func _make_diamond(hw: float, hh: float) -> PackedVector2Array:
 	])
 
 func collect(amount: int) -> int:
+	if _is_depleted:
+		return 0
 	var taken: int = mini(amount, quantity)
 	quantity -= taken
-	var ratio: float = float(quantity) / 50.0
-	_poly.color = (_make_base_color()).lerp(Color(0.25, 0.20, 0.15, 1.0), 1.0 - ratio)
 	if quantity <= 0:
+		_is_depleted = true
+		_poly.color = COLOR_EMPTY
 		emit_signal("depleted", self)
-		queue_free()
+	else:
+		var ratio: float = float(quantity) / 50.0
+		_poly.color = _make_base_color().lerp(COLOR_EMPTY, 1.0 - ratio)
 	return taken
 
 func _make_base_color() -> Color:
 	return COLOR_WOOD if resource_type == Type.WOOD else COLOR_GOLD
 
 func contains_point(world_pos: Vector2) -> bool:
+	if _is_depleted:
+		return false
 	var local: Vector2 = world_pos - global_position
-	# Zone = tuile entière (128/2=64, 64/2=32) pour cliquer facilement
 	return (absf(local.x) / 64.0 + absf(local.y) / 32.0) <= 1.0

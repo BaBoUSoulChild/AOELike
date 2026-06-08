@@ -15,7 +15,7 @@ enum State { FREE, GOING_TO_RES, COLLECTING, GOING_TO_DEPOT }
 @export var collect_per_tick: int = 10
 @export var carry_capacity: int = 30
 
-const ARRIVAL_DIST: float = 8.0
+const ARRIVAL_DIST: float = 32.0
 
 var is_selected: bool = false
 var _state: State = State.FREE

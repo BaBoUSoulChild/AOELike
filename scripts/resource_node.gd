@@ -56,4 +56,5 @@ func _make_base_color() -> Color:
 
 func contains_point(world_pos: Vector2) -> bool:
 	var local: Vector2 = world_pos - global_position
-	return (absf(local.x) / HALF_W + absf(local.y) / HALF_H) <= 1.0
+	# Zone = tuile entière (128/2=64, 64/2=32) pour cliquer facilement
+	return (absf(local.x) / 64.0 + absf(local.y) / 32.0) <= 1.0

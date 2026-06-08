@@ -144,6 +144,10 @@ func _on_villager_collected(resource_type: int, amount: int) -> void:
 	else:
 		_gold += amount
 	_update_resource_label()
+	_ui_label.text = "+%d %s déposé" % [amount, "bois" if resource_type == ResourceNode.Type.WOOD else "or"]
+	await get_tree().create_timer(1.5).timeout
+	if _selected_unit != null:
+		_update_info_label(true)
 
 # -------------------------------------------------------------------------------
 # Labels UI

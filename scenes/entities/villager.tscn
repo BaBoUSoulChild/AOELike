@@ -5,6 +5,3 @@
 [node name="Villager" type="CharacterBody2D"]
 script = ExtResource("1")
 move_speed = 120.0
-color_normal = Color(0.2, 0.75, 0.2, 1)
-color_selected = Color(0.4, 1, 0.4, 1)
-color_highlight = Color(1, 1, 0.3, 1)

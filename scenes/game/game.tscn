@@ -52,6 +52,16 @@ offset_bottom = 40.0
 text = "⛶ Plein écran"
 theme_override_font_sizes/font_size = 14
 
+[node name="ProduceButton" type="Button" parent="UILayer"]
+visible = false
+anchors_preset = 0
+offset_left = 8.0
+offset_top = 88.0
+offset_right = 230.0
+offset_bottom = 126.0
+text = "Produire villageois (50 bois)"
+theme_override_font_sizes/font_size = 14
+
 [node name="ResourceLabel" type="Label" parent="UILayer"]
 anchors_preset = 0
 offset_left = 8.0

@@ -50,6 +50,11 @@ var _touch_moved: bool = false
 var _touch_start_pos: Vector2 = Vector2.ZERO
 const TOUCH_DRAG_THRESHOLD: float = 20.0
 
+const DRAG_SELECT_THRESHOLD: float = 12.0
+var _drag_select_active: bool = false
+var _drag_select_start: Vector2 = Vector2.ZERO
+var _select_rect: Panel = null
+
 func _ready() -> void:
 	_generate_tilemap()
 	_spawn_town_center()
@@ -61,6 +66,7 @@ func _ready() -> void:
 	_back_button.pressed.connect(_on_back_pressed)
 	_fullscreen_button.pressed.connect(_on_fullscreen_pressed)
 	_produce_button.pressed.connect(_on_produce_pressed)
+	_build_select_rect()
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("""
 			(function(){
@@ -98,6 +104,8 @@ func _spawn_town_center() -> void:
 func _set_tc_selected(value: bool) -> void:
 	_town_center.set_selected(value)
 	_produce_button.visible = value
+	if value:
+		_ui_label.text = "Town Center — produire des villageois (%d bois)" % VILLAGER_COST_WOOD
 
 func _on_produce_pressed() -> void:
 	if _population_total() >= POP_CAP:
@@ -274,8 +282,6 @@ func _update_production_status() -> void:
 	var queue: int = _town_center.get_queue_size()
 	if queue > 0:
 		_ui_label.text = "Production : %ds restantes (file : %d)" % [int(ceilf(_town_center.get_time_left())), queue]
-	else:
-		_ui_label.text = "Town Center — produire des villageois (%d bois)" % VILLAGER_COST_WOOD
 
 func _move_camera_keyboard(delta: float) -> void:
 	var dir := Vector2.ZERO
@@ -302,12 +308,29 @@ func _move_camera_keyboard(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and (event as InputEventMouseButton).device != -1:
 		var mbe := event as InputEventMouseButton
-		if mbe.pressed:
-			var world_pos: Vector2 = _screen_to_world(mbe.position)
-			if mbe.button_index == MOUSE_BUTTON_LEFT:
-				_handle_select(world_pos)
-			elif mbe.button_index == MOUSE_BUTTON_RIGHT:
-				_handle_right_action(world_pos)
+		if mbe.button_index == MOUSE_BUTTON_LEFT:
+			if mbe.pressed:
+				_drag_select_active = true
+				_drag_select_start = mbe.position
+			elif _drag_select_active:
+				_drag_select_active = false
+				_select_rect.visible = false
+				if mbe.position.distance_to(_drag_select_start) > DRAG_SELECT_THRESHOLD:
+					_select_in_rect(_drag_select_start, mbe.position)
+				else:
+					_handle_select(_screen_to_world(mbe.position))
+		elif mbe.button_index == MOUSE_BUTTON_RIGHT and mbe.pressed:
+			_handle_right_action(_screen_to_world(mbe.position))
+
+	elif event is InputEventMouseMotion and (event as InputEventMouseMotion).device != -1:
+		if _drag_select_active:
+			if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				_drag_select_active = false
+				_select_rect.visible = false
+			else:
+				var mme := event as InputEventMouseMotion
+				if mme.position.distance_to(_drag_select_start) > DRAG_SELECT_THRESHOLD:
+					_update_select_rect(_drag_select_start, mme.position)
 
 	elif event is InputEventScreenTouch:
 		var ste := event as InputEventScreenTouch
@@ -322,6 +345,36 @@ func _unhandled_input(event: InputEvent) -> void:
 		var sde := event as InputEventScreenDrag
 		if sde.position.distance_to(_touch_start_pos) > TOUCH_DRAG_THRESHOLD:
 			_touch_moved = true
+
+# -------------------------------------------------------------------------------
+# Sélection au rectangle (souris uniquement)
+# -------------------------------------------------------------------------------
+func _build_select_rect() -> void:
+	_select_rect = Panel.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.4, 0.8, 1.0, 0.15)
+	style.border_color = Color(0.4, 0.8, 1.0, 0.9)
+	style.set_border_width_all(2)
+	_select_rect.add_theme_stylebox_override("panel", style)
+	_select_rect.visible = false
+	_select_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$UILayer.add_child(_select_rect)
+
+func _update_select_rect(a: Vector2, b: Vector2) -> void:
+	_select_rect.visible = true
+	_select_rect.position = Vector2(minf(a.x, b.x), minf(a.y, b.y))
+	_select_rect.size = (b - a).abs()
+
+func _select_in_rect(a: Vector2, b: Vector2) -> void:
+	var rect := Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (b - a).abs())
+	var canvas: Transform2D = get_viewport().get_canvas_transform()
+	_deselect_all()
+	_set_tc_selected(false)
+	for v: Villager in _villagers:
+		if rect.has_point(canvas * v.position):
+			v.set_selected(true)
+	if _selected_units.is_empty():
+		_update_info_label(false)
 
 # -------------------------------------------------------------------------------
 # Logique d'action

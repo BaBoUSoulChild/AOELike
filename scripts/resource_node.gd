@@ -10,38 +10,29 @@ var resource_type: Type = Type.WOOD
 var quantity: int = 50
 var _is_depleted: bool = false
 
-const HALF_W: float = 24.0
-const HALF_H: float = 12.0
-const COLOR_WOOD: Color = Color(0.55, 0.33, 0.10, 1.0)
-const COLOR_GOLD: Color = Color(0.95, 0.78, 0.10, 1.0)
-const COLOR_EMPTY: Color = Color(0.78, 0.78, 0.78, 0.55)
+const COLOR_EMPTY: Color = Color(0.6, 0.6, 0.6, 0.6)
+const SPRITE_SCALE: float = 0.72
 
-var _poly: Polygon2D = null
+const TEX_WOOD: Texture2D = preload("res://assets/shared/resources/tree.png")
+const TEX_GOLD: Texture2D = preload("res://assets/shared/resources/gold_rock.png")
+const OFFSET_WOOD: Vector2 = Vector2(0.0, -28.0)
+const OFFSET_GOLD: Vector2 = Vector2(0.0, -1.5)
+
+var _sprite: Sprite2D = null
 
 func _ready() -> void:
 	_build_visual()
 
 func _build_visual() -> void:
-	_poly = Polygon2D.new()
-	_poly.polygon = _make_diamond(HALF_W, HALF_H)
-	_poly.color = COLOR_WOOD if resource_type == Type.WOOD else COLOR_GOLD
-	add_child(_poly)
-
-	var border := Line2D.new()
-	border.points = PackedVector2Array([
-		Vector2(0.0, -HALF_H), Vector2(HALF_W, 0.0),
-		Vector2(0.0, HALF_H), Vector2(-HALF_W, 0.0),
-		Vector2(0.0, -HALF_H),
-	])
-	border.default_color = Color(0.1, 0.1, 0.1, 0.6)
-	border.width = 1.5
-	add_child(border)
-
-func _make_diamond(hw: float, hh: float) -> PackedVector2Array:
-	return PackedVector2Array([
-		Vector2(0.0, -hh), Vector2(hw, 0.0),
-		Vector2(0.0, hh), Vector2(-hw, 0.0),
-	])
+	_sprite = Sprite2D.new()
+	if resource_type == Type.WOOD:
+		_sprite.texture = TEX_WOOD
+		_sprite.offset = OFFSET_WOOD
+	else:
+		_sprite.texture = TEX_GOLD
+		_sprite.offset = OFFSET_GOLD
+	_sprite.scale = Vector2(SPRITE_SCALE, SPRITE_SCALE)
+	add_child(_sprite)
 
 func collect(amount: int) -> int:
 	if _is_depleted:
@@ -50,15 +41,12 @@ func collect(amount: int) -> int:
 	quantity -= taken
 	if quantity <= 0:
 		_is_depleted = true
-		_poly.color = COLOR_EMPTY
+		_sprite.modulate = COLOR_EMPTY
 		emit_signal("depleted", self)
 	else:
 		var ratio: float = float(quantity) / 50.0
-		_poly.color = _make_base_color().lerp(COLOR_EMPTY, 1.0 - ratio)
+		_sprite.modulate = Color.WHITE.lerp(COLOR_EMPTY, 1.0 - ratio)
 	return taken
-
-func _make_base_color() -> Color:
-	return COLOR_WOOD if resource_type == Type.WOOD else COLOR_GOLD
 
 func contains_point(world_pos: Vector2) -> bool:
 	if _is_depleted:

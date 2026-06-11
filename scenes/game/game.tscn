@@ -18,6 +18,7 @@ drag_sensitivity = 1.0
 [node name="MapContainer" type="Node2D" parent="."]
 
 [node name="UnitsContainer" type="Node2D" parent="."]
+y_sort_enabled = true
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 layer = 10

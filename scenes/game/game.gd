@@ -3,12 +3,14 @@ extends Node2D
 const MAP_W: int = 20
 const MAP_H: int = 20
 
-const COLOR_TILE_A: Color = Color(0.36, 0.55, 0.25, 1.0)
-const COLOR_TILE_B: Color = Color(0.28, 0.44, 0.18, 1.0)
-const COLOR_TILE_BORDER: Color = Color(0.1, 0.1, 0.1, 0.4)
-
 const TILE_W: int = 128
 const TILE_H: int = 64
+
+const GRASS_SCALE: float = TILE_W / 132.0
+const GRASS_TEXTURES: Array[Texture2D] = [
+	preload("res://assets/shared/terrain/grass_a.png"),
+	preload("res://assets/shared/terrain/grass_b.png"),
+]
 
 const WOOD_COUNT: int = 15
 const GOLD_COUNT: int = 8
@@ -103,9 +105,8 @@ func _spawn_resource_batch(type: ResourceNode.Type, count: int) -> void:
 		var node := ResourceNode.new()
 		node.resource_type = type
 		node.position = _tile_to_screen(tx, ty)
-		node.z_index = 3
 		node.depleted.connect(_on_resource_depleted)
-		_map_container.add_child(node)
+		_units_container.add_child(node)
 		_resource_nodes.append(node)
 		spawned += 1
 
@@ -125,7 +126,6 @@ func _spawn_villager() -> void:
 	else:
 		_villager = Villager.new()
 	_villager.position = _tile_to_screen(MAP_W / 2, MAP_H / 2)
-	_villager.z_index = 10
 	_units_container.add_child(_villager)
 	_villager.selected.connect(_on_villager_selected)
 	_villager.collected.connect(_on_villager_collected)
@@ -167,31 +167,11 @@ func _update_resource_label() -> void:
 func _generate_tilemap() -> void:
 	for tx in range(MAP_W):
 		for ty in range(MAP_H):
-			var screen_pos := _tile_to_screen(tx, ty)
-			var tile := Polygon2D.new()
-			tile.polygon = _make_tile_polygon()
-			tile.color = COLOR_TILE_A if (tx + ty) % 2 == 0 else COLOR_TILE_B
-			tile.position = screen_pos
-			var border := Line2D.new()
-			border.points = _make_tile_border()
-			border.default_color = COLOR_TILE_BORDER
-			border.width = 1.0
-			tile.add_child(border)
+			var tile := Sprite2D.new()
+			tile.texture = GRASS_TEXTURES[(tx + ty) % 2]
+			tile.scale = Vector2(GRASS_SCALE, GRASS_SCALE)
+			tile.position = _tile_to_screen(tx, ty)
 			_map_container.add_child(tile)
-
-func _make_tile_polygon() -> PackedVector2Array:
-	var hw: float = TILE_W / 2.0
-	var hh: float = TILE_H / 2.0
-	return PackedVector2Array([
-		Vector2(0.0, -hh), Vector2(hw, 0.0), Vector2(0.0, hh), Vector2(-hw, 0.0),
-	])
-
-func _make_tile_border() -> PackedVector2Array:
-	var hw: float = TILE_W / 2.0
-	var hh: float = TILE_H / 2.0
-	return PackedVector2Array([
-		Vector2(0.0, -hh), Vector2(hw, 0.0), Vector2(0.0, hh), Vector2(-hw, 0.0), Vector2(0.0, -hh),
-	])
 
 # -------------------------------------------------------------------------------
 # Caméra
